@@ -13,21 +13,24 @@ const schema = Yup.object({
   password: Yup.string().min(5).required()
 }).required()
 
-type LoginFormData = Yup.InferType<typeof schema>
+export type LoginFormData = Yup.InferType<typeof schema>
 
-export const LoginForm = (props: HTMLChakraProps<'form'>) => {
-  const { handleSubmit, register, formState: { errors } } = useForm<LoginFormData>({
+type Props = HTMLChakraProps<'form'> & {
+  login: (data: LoginFormData) => Promise<void>
+  loading: boolean
+}
+
+export const LoginForm = ({ loading, login, ...formProps }: Props) => {
+  const { handleSubmit, register, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
     resolver: yupResolver(schema)
   })
 
-  const onSubmit = async (data: LoginFormData) => {
-    console.log(data)
-  }
+  const onSubmit = async (formData: LoginFormData) => login(formData)
 
   return (
     <chakra.form
       onSubmit={handleSubmit(onSubmit)}
-      {...props}
+      {...formProps}
     >
       <Stack spacing="6">
         <FormControl id="email" isRequired isInvalid={!!errors?.email}>
@@ -43,7 +46,7 @@ export const LoginForm = (props: HTMLChakraProps<'form'>) => {
 
         <FormControl id="password" isRequired isInvalid={!!errors?.password}>
           <FormLabel>Senha</FormLabel>
-          <PasswordInput id="password" autoComplete="password" {...register('password')}/>
+          <PasswordInput id="password" autoComplete="password" {...register('password')} />
           {errors?.password && (
             <FormErrorMessage>
               {errors.password.message}
@@ -51,7 +54,14 @@ export const LoginForm = (props: HTMLChakraProps<'form'>) => {
           )}
         </FormControl>
 
-        <Button type="submit" colorScheme="blue" size="lg" fontSize="md">
+        <Button
+          type="submit"
+          colorScheme="blue"
+          size="lg"
+          fontSize="md"
+          isDisabled={isSubmitting || loading}
+          isLoading={isSubmitting || loading}
+        >
           Entrar
         </Button>
       </Stack>

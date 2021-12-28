@@ -2,14 +2,14 @@ import React from 'react'
 import {
   Box,
   BoxProps,
-  Divider,
-  Flex,
-  FlexProps,
   Heading,
   Text,
   useColorModeValue
 } from '@chakra-ui/react'
-import { LoginForm } from './LoginForm'
+import { LoginForm, LoginFormData } from './LoginForm'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { useAuth } from '../../context/auth'
+import { useLoginUserMutation } from '../../generated/graphql'
 
 export const Card = (props: BoxProps) => (
   <Box
@@ -23,6 +23,29 @@ export const Card = (props: BoxProps) => (
 )
 
 export function LoginView () {
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  // @ts-ignore
+  const from = location?.state?.from?.pathname || '/'
+
+  const auth = useAuth()
+  const [loginMutation, { loading }] = useLoginUserMutation()
+
+  const login = async (formData: LoginFormData) => {
+    try {
+      const { data } = await loginMutation({
+        variables: { input: formData }
+      })
+      if (data?.LoginUser?.accessToken && data?.LoginUser?.user) {
+        auth.localLogin(data.LoginUser.accessToken, data.LoginUser.user)
+        navigate(from, { replace: true })
+      }
+    } catch (e) {
+      console.log('ERROR: ', e)
+    }
+  }
+
   return (
     <Box
     bg={useColorModeValue('gray.50', 'inherit')}
@@ -40,7 +63,7 @@ export function LoginView () {
         {/* <Link href="#">Criar conta gratuita</Link> */}
       </Text>
       <Card>
-        <LoginForm />
+        <LoginForm login={login} loading={loading}/>
       </Card>
     </Box>
   </Box>
