@@ -30,21 +30,18 @@ export function LoginView () {
   const from = location?.state?.from?.pathname || '/'
 
   const auth = useAuth()
-  const [loginMutation, { loading }] = useLoginUserMutation()
+  const [loginMutation, { loading }] = useLoginUserMutation({
+    notifyOnNetworkStatusChange: true
+  })
 
-  const login = async (formData: LoginFormData) => {
-    try {
-      const { data } = await loginMutation({
-        variables: { input: formData }
-      })
-      if (data?.LoginUser?.accessToken && data?.LoginUser?.user) {
-        auth.localLogin(data.LoginUser.accessToken, data.LoginUser.user)
-        navigate(from, { replace: true })
-      }
-    } catch (e) {
-      console.log('ERROR: ', e)
+  const login = async (formData: LoginFormData) => loginMutation({
+    variables: { input: formData }
+  }).then(({ data }) => {
+    if (data?.LoginUser?.accessToken && data?.LoginUser?.user) {
+      auth.localLogin(data.LoginUser.accessToken, data.LoginUser.user)
+      navigate(from, { replace: true })
     }
-  }
+  })
 
   return (
     <Box
@@ -54,7 +51,7 @@ export function LoginView () {
     px={{ base: '4', lg: '8' }}
   >
     <Box maxW="md" mx="auto">
-
+    loading: { loading ? 'true' : 'false' }
       <Heading textAlign="center" size="xl" fontWeight="extrabold">
         Faça o seu Login
       </Heading>

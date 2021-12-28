@@ -35,13 +35,11 @@ export function AuthProvider ({ children }: Props) {
       if (!accesToken) return setLoading(false)
 
       try {
-        console.log('Executando query me: ', accesToken)
         const { data } = await apollo.query<MeQueryQuery, MeQueryQueryVariables>({
           query: MeQueryDocument
         })
 
         if (data?.me?.id) {
-          console.log('USER: ', data.me)
           setCurrentUser(data.me)
         }
 

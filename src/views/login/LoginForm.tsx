@@ -21,11 +21,13 @@ type Props = HTMLChakraProps<'form'> & {
 }
 
 export const LoginForm = ({ loading, login, ...formProps }: Props) => {
-  const { handleSubmit, register, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
+  const { handleSubmit, register, formState: { errors, isSubmitting }, setError } = useForm<LoginFormData>({
     resolver: yupResolver(schema)
   })
 
-  const onSubmit = async (formData: LoginFormData) => login(formData)
+  const onSubmit = async (formData: LoginFormData) => login(formData).catch(e => {
+    setError('password', { message: 'Email ou senha inválido' })
+  })
 
   return (
     <chakra.form
