@@ -6,7 +6,9 @@ import {
 } from 'react-router-dom'
 import { LoadingScreen } from '../components/LoadingScreen/LoadingScreen'
 import { useAuth } from '../context/auth'
+import { DashboardHome } from '../views/dashboard/home/DashboardHome'
 import { LoginView } from '../views/login/LoginView'
+import { PrivateOutlet } from './PrivateOutlet'
 import { PrivateRoute } from './PrivateRoute'
 
 function Main () {
@@ -32,7 +34,10 @@ export function Router () {
             <Main />
           </PrivateRoute>
         )} />
-        <Route path="/login" element={<LoginView />}></Route>
+        <Route path="/login" element={<LoginView />} />
+        <Route path="/dashboard" element={<PrivateOutlet />}>
+          <Route index element={<DashboardHome />}/>
+        </Route>
       </Routes>
     </BrowserRouter>
   )
