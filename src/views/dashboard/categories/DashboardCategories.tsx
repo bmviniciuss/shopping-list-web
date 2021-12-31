@@ -131,10 +131,10 @@ export function CreateCategoryDialog ({ isOpen, onClose }: CreateCategoryDialogP
 }
 
 export function DashboardCategories () {
-  const { data, loading } = useGetCategoriesQuery({
-    fetchPolicy: 'cache-and-network'
-  })
+  const { data, loading } = useGetCategoriesQuery()
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const cardBgColor = useColorModeValue('white', 'gray.900')
+
   return (
     <SidebarWithHeader>
       <Box display={'flex'} flexDir={'row'} justifyContent={'space-between'} alignItems={'center'}>
@@ -148,7 +148,7 @@ export function DashboardCategories () {
           return (
             <Box
               key={category.id}
-              bg={useColorModeValue('white', 'gray.900')}
+              bg={cardBgColor}
               boxShadow='base'
               rounded='md'
               p={6}>
