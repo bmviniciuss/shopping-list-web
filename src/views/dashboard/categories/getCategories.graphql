@@ -1,0 +1,8 @@
+query GetCategories {
+  GetCategories {
+    id
+    name
+    description
+    active
+  }
+}

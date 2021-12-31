@@ -1,0 +1,8 @@
+query GetCategoryById($getCategoryByIdId: ID!) {
+  GetCategoryById(id: $getCategoryByIdId) {
+    id
+    name
+    description
+    active
+  }
+}
