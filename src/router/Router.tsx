@@ -5,7 +5,7 @@ import {
   BrowserRouter
 } from 'react-router-dom'
 import { LoadingScreen } from '../components/LoadingScreen/LoadingScreen'
-import { useAuth } from '../context/auth'
+import { useZustAuth } from '../context/auth'
 import { DashboardCategories } from '../views/dashboard/categories/DashboardCategories'
 import { DashboardHome } from '../views/dashboard/home/DashboardHome'
 import { LoginView } from '../views/login/LoginView'
@@ -21,9 +21,9 @@ function Main () {
 }
 
 export function Router () {
-  const auth = useAuth()
+  const loading = useZustAuth(state => state.loading)
 
-  if (auth.loading) {
+  if (loading) {
     return <LoadingScreen />
   }
 

@@ -22,7 +22,8 @@
     "react-router-dom": "^6.2.1",
     "yup": "^0.32.11",
     "yup-locale-pt": "0.0.9",
-    "zod": "^3.11.6"
+    "zod": "^3.11.6",
+    "zustand": "^3.6.9"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "2.3.0",

@@ -1,76 +1,71 @@
 import { useApolloClient } from '@apollo/client'
-import React, { useContext } from 'react'
+import React from 'react'
 import { MeQueryDocument, MeQueryQuery, MeQueryQueryVariables, User } from '../generated/graphql'
 import { clearAuthToken, getAuthToken, saveAuthToken } from '../services/localStorage'
+import create from 'zustand'
 
 export type CurrentUserType = Pick<User, 'id' | 'name' | 'email' | 'active'>
 
-export type AuthStateType = {
-  loading: boolean,
-  token?: string | null
+type AuthStateType = {
+  loading: boolean
   currentUser?: CurrentUserType | null
+  setLoading: (loading: boolean) => void
+  authFlowLogin: (accessToken: string, user: CurrentUserType) => void
+  authFlowClearUser: () => void
+  setCurrentUser: (user?: CurrentUserType | null) => void
 }
 
-type AuthContextType = {
-  currentUser?: CurrentUserType
-  loading: boolean
-  localLogin: (accessToken: string, currentUser: CurrentUserType) => void
-}
+export const useZustAuth = create<AuthStateType>(set => ({
+  loading: true,
+  currentUser: null,
+  authFlowLogin: (accessToken: string, user: CurrentUserType) => {
+    saveAuthToken(accessToken)
+    set({ currentUser: user, loading: false })
+  },
+  authFlowClearUser: () => {
+    clearAuthToken()
+    set({ currentUser: null, loading: false })
+  },
+  setLoading: (loading: boolean) => set({ loading }),
+  setCurrentUser: (user?: CurrentUserType | null) => {
+    set({ currentUser: user })
+  }
+}))
 
 type Props = {
   children: React.ReactNode
 }
-
-export const AuthContext = React.createContext<AuthContextType>({} as AuthContextType)
-
 export function AuthProvider ({ children }: Props) {
-  const [loading, setLoading] = React.useState(true)
-  const [currentUser, setCurrentUser] = React.useState<CurrentUserType | undefined>(undefined)
+  const setLoading = useZustAuth(state => state.setLoading)
+  const setCurrentUser = useZustAuth(state => state.setCurrentUser)
+  const authFlowClearUser = useZustAuth(state => state.authFlowClearUser)
+
   const apollo = useApolloClient()
 
   React.useEffect(() => {
     async function f () {
       setLoading(true)
       const accesToken = getAuthToken()
+
       if (!accesToken) return setLoading(false)
 
-      try {
-        const { data } = await apollo.query<MeQueryQuery, MeQueryQueryVariables>({
-          query: MeQueryDocument
-        })
-
+      await apollo.query<MeQueryQuery, MeQueryQueryVariables>({
+        query: MeQueryDocument
+      }).then(({ data }) => {
         if (data?.me?.id) {
           setCurrentUser(data.me)
         }
-
         setLoading(false)
-      } catch (e) {
-        clearAuthToken()
-        setCurrentUser(undefined)
-        setLoading(false)
-      }
+      }).catch(() => {
+        authFlowClearUser()
+      })
     }
     f()
   }, [])
 
-  const localLogin = (accessToken: string, currentUser: CurrentUserType) => {
-    saveAuthToken(accessToken)
-    setCurrentUser(currentUser)
-  }
-
   return (
-    <AuthContext.Provider value={{
-      currentUser,
-      loading,
-      localLogin
-    }}>
+    <React.Fragment>
       {children}
-    </AuthContext.Provider>
+    </React.Fragment>
   )
-}
-
-export function useAuth () {
-  const authContext = useContext(AuthContext)
-  if (!authContext) throw new Error('Must be a child of AuthContext')
-  return authContext
 }

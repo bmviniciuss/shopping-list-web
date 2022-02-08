@@ -8,7 +8,7 @@ import {
 } from '@chakra-ui/react'
 import { LoginForm, LoginFormData } from './LoginForm'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useAuth } from '../../context/auth'
+import { useZustAuth } from '../../context/auth'
 import { useLoginUserMutation } from '../../generated/graphql'
 
 export const Card = (props: BoxProps) => (
@@ -29,7 +29,7 @@ export function LoginView () {
   // @ts-ignore
   const from = location?.state?.from?.pathname || '/'
 
-  const auth = useAuth()
+  const authFlowLogin = useZustAuth(state => state.authFlowLogin)
   const [loginMutation, { loading }] = useLoginUserMutation({
     notifyOnNetworkStatusChange: true
   })
@@ -38,7 +38,7 @@ export function LoginView () {
     variables: { input: formData }
   }).then(({ data }) => {
     if (data?.LoginUser?.accessToken && data?.LoginUser?.user) {
-      auth.localLogin(data.LoginUser.accessToken, data.LoginUser.user)
+      authFlowLogin(data.LoginUser.accessToken, data.LoginUser.user)
       navigate(from, { replace: true })
     }
   })

@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react'
 import React from 'react'
 import { FiMenu, FiBell, FiChevronDown } from 'react-icons/fi'
-import { useAuth } from '../../context/auth'
+import { useZustAuth } from '../../context/auth'
 
 interface MobileProps extends FlexProps {
   onOpen: () => void;
@@ -24,7 +24,7 @@ interface MobileProps extends FlexProps {
 export function MobileNav ({ onOpen, ...rest }: MobileProps) {
   const bgColor = useColorModeValue('white', 'gray.900')
   const borderColor = useColorModeValue('gray.200', 'gray.700')
-  const auth = useAuth()
+  const currentUser = useZustAuth(state => state.currentUser)
 
   return (
     <Flex
@@ -61,7 +61,7 @@ export function MobileNav ({ onOpen, ...rest }: MobileProps) {
           icon={<FiBell />}
         />
         <Flex alignItems={'center'}>
-          {auth.currentUser && (
+          {currentUser && (
             <Menu>
               <MenuButton
                 py={2}
@@ -70,16 +70,16 @@ export function MobileNav ({ onOpen, ...rest }: MobileProps) {
                 <HStack>
                   <Avatar
                     size={'sm'}
-                    name={auth.currentUser.name}
+                    name={currentUser.name}
                   />
                   <VStack
                     display={{ base: 'none', md: 'flex' }}
                     alignItems="flex-start"
                     spacing="1px"
                     ml="2">
-                    <Text fontSize="sm">{auth.currentUser.name}</Text>
+                    <Text fontSize="sm">{currentUser.name}</Text>
                     <Text fontSize="xs" color="gray.600">
-                      {auth.currentUser.email}
+                      {currentUser.email}
                     </Text>
                   </VStack>
                   <Box display={{ base: 'none', md: 'flex' }}>
